@@ -35,7 +35,7 @@ const PieChart: React.FC<PieChartProps> = ({ data }) => {
       'L 0 0', // Line to center
     ].join(' ');
     
-    return { path: pathData, color: item.color, label: item.label };
+    return { path: pathData, color: item.color, label: item.label, value: item.value };
   });
 
   return (

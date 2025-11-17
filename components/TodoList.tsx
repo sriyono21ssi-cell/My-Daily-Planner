@@ -105,14 +105,17 @@ const TodoList: React.FC<TodoListProps> = ({ selectedDate, tasks, onAddTask, onU
   };
 
   const handleDownloadXLS = () => {
-    const year = displayDate.getFullYear();
-    const month = displayDate.getMonth();
-    const monthString = displayDate.toLocaleString('id-ID', { month: 'long', timeZone: 'Asia/Jakarta' });
+    const year = displayDate.getUTCFullYear();
+    const month = displayDate.getUTCMonth();
+    // Format month name using UTC to be consistent with the date object
+    const monthString = displayDate.toLocaleString('id-ID', { month: 'long', timeZone: 'UTC' });
     
     const tasksToExport = Object.keys(allTasks)
       .filter(dateKey => {
-        const taskDate = new Date(dateKey + 'T00:00:00');
-        return taskDate.getFullYear() === year && taskDate.getMonth() === month;
+        // Parse the dateKey string as a UTC date
+        const taskDate = new Date(dateKey + 'T00:00:00Z');
+        // Compare using UTC methods
+        return taskDate.getUTCFullYear() === year && taskDate.getUTCMonth() === month;
       })
       .sort()
       .flatMap(dateKey => {
