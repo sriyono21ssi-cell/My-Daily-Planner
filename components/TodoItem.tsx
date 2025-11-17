@@ -143,7 +143,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onUpdate, onDelete }) => {
       {isEditing ? (
         <div className="pl-9 flex gap-2 text-sm">
             <div className="flex-1">
-                <label className="text-xs text-slate-400">Planning (jam)</label>
+                <label className="text-xs text-slate-400">Planning (berapa jam)</label>
                 <input
                     type="number"
                     name="planningTime"
@@ -173,10 +173,10 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onUpdate, onDelete }) => {
         <div className="pl-9">
           <div className="flex items-center gap-3 text-xs">
             <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">
-              Plan: <strong>{task.planningTime.toFixed(1)}j</strong>
+              Plan: <strong>{task.planningTime.toFixed(1)} Hour</strong>
             </span>
             <span className="bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-0.5 rounded-full">
-              Actual: <strong>{task.actualTime.toFixed(1)}j</strong>
+              Actual: <strong>{task.actualTime.toFixed(1)} Hour</strong>
             </span>
           </div>
           {task.completed ? (

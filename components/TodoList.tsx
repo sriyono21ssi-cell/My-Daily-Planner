@@ -241,7 +241,7 @@ const TodoList: React.FC<TodoListProps> = ({ selectedDate, tasks, onAddTask, onU
                 min="0"
                 value={newTask.planningTime}
                 onChange={handleInputChange}
-                placeholder="Planning time (jam)"
+                placeholder="Planning Time (berapa jam)"
                 className="w-full px-4 py-3 bg-slate-100 dark:bg-slate-700 border-transparent rounded-lg focus:ring-2 focus:ring-indigo-500 focus:outline-none"
             />
             <button type="submit" className="flex-shrink-0 p-3 bg-indigo-500 text-white rounded-full hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-800">
