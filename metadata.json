@@ -1,0 +1,5 @@
+{
+  "name": "My Daily Planner",
+  "description": "A smart daily planner application that helps you organize your day with a calendar, to-do list, and AI-powered task suggestions from Gemini. Create, edit, delete, and mark tasks as complete, all while leveraging AI to generate and organize your daily schedule.",
+  "requestFramePermissions": []
+}
