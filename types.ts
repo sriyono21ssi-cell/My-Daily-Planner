@@ -5,6 +5,7 @@ export interface Task {
   completed: boolean;
   planningTime: number; // in hours
   actualTime: number; // in hours
+  resultLink?: string;
 }
 
 export interface SummaryData {

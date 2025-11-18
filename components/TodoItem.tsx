@@ -15,6 +15,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onUpdate, onDelete }) => {
     text: task.text,
     planningTime: String(task.planningTime || 0),
     actualTime: String(task.actualTime || 0),
+    resultLink: task.resultLink || '',
   });
 
   const textInputRef = useRef<HTMLInputElement>(null);
@@ -33,6 +34,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onUpdate, onDelete }) => {
         text: editState.text.trim(),
         planningTime: parseFloat(editState.planningTime) || 0,
         actualTime: parseFloat(editState.actualTime) || 0,
+        resultLink: editState.resultLink.trim(),
       });
     }
     setIsEditing(false);
@@ -51,6 +53,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onUpdate, onDelete }) => {
         text: task.text,
         planningTime: String(task.planningTime || 0),
         actualTime: String(task.actualTime || 0),
+        resultLink: task.resultLink || '',
       });
       setIsEditing(false);
     }
@@ -84,9 +87,13 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onUpdate, onDelete }) => {
       }
       actualTime = newActualTime;
     }
+
+    // Prompt for result link
+    const resultLink = prompt("Masukkan link hasil tugas (opsional):", task.resultLink || '');
     
-    // Update task to be completed with the actual time.
-    onUpdate({ ...task, completed: true, actualTime });
+    // Update task to be completed with the actual time and link.
+    // If user cancels the link prompt, resultLink will be null, which is handled as an empty string.
+    onUpdate({ ...task, completed: true, actualTime, resultLink: resultLink || '' });
   };
   
   return (
@@ -141,9 +148,9 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onUpdate, onDelete }) => {
       </div>
       
       {isEditing ? (
-        <div className="pl-9 flex gap-2 text-sm">
-            <div className="flex-1">
-                <label className="text-xs text-slate-400">Planning (berapa jam)</label>
+        <div className="pl-9 flex flex-wrap gap-2 text-sm">
+            <div className="flex-1 min-w-[120px]">
+                <label className="text-xs text-slate-400">Planning (jam)</label>
                 <input
                     type="number"
                     name="planningTime"
@@ -155,7 +162,7 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onUpdate, onDelete }) => {
                     className="w-full bg-indigo-50 dark:bg-slate-800 border border-indigo-200 dark:border-slate-700 rounded-md focus:ring-1 focus:ring-indigo-500 focus:outline-none px-2 py-1"
                 />
             </div>
-             <div className="flex-1">
+             <div className="flex-1 min-w-[120px]">
                 <label className="text-xs text-slate-400">Actual (jam)</label>
                 <input
                     type="number"
@@ -163,6 +170,18 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onUpdate, onDelete }) => {
                     step="0.1"
                     min="0"
                     value={editState.actualTime}
+                    onChange={handleInputChange}
+                    onKeyDown={handleKeyDown}
+                    className="w-full bg-indigo-50 dark:bg-slate-800 border border-indigo-200 dark:border-slate-700 rounded-md focus:ring-1 focus:ring-indigo-500 focus:outline-none px-2 py-1"
+                />
+            </div>
+            <div className="w-full">
+                <label className="text-xs text-slate-400">Link Hasil Tugas</label>
+                <input
+                    type="url"
+                    name="resultLink"
+                    placeholder="https://..."
+                    value={editState.resultLink}
                     onChange={handleInputChange}
                     onKeyDown={handleKeyDown}
                     className="w-full bg-indigo-50 dark:bg-slate-800 border border-indigo-200 dark:border-slate-700 rounded-md focus:ring-1 focus:ring-indigo-500 focus:outline-none px-2 py-1"
@@ -189,6 +208,22 @@ const TodoItem: React.FC<TodoItemProps> = ({ task, onUpdate, onDelete }) => {
                 note: input actual time untuk menyelesaikan tugas
               </p>
             )
+          )}
+          {task.resultLink && (
+             <div className="mt-2">
+                <a 
+                  href={task.resultLink.startsWith('http') ? task.resultLink : `//${task.resultLink}`} 
+                  target="_blank" 
+                  rel="noopener noreferrer" 
+                  className="inline-flex items-center gap-1.5 text-xs text-indigo-600 dark:text-indigo-400 hover:underline break-all max-w-full"
+                  title={task.resultLink}
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-3.5 w-3.5 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                        <path strokeLinecap="round" strokeLinejoin="round" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                    </svg>
+                    <span className="truncate">Link Hasil Tugas</span>
+                </a>
+            </div>
           )}
         </div>
       )}

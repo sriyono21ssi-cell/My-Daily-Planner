@@ -65,6 +65,7 @@ const TodoList: React.FC<TodoListProps> = ({ selectedDate, tasks, onAddTask, onU
                 const status = row['Status'];
                 const planningTime = row['Planning Time (jam)'];
                 const actualTime = row['Actual Time (jam)'];
+                const resultLink = row['Link Hasil Tugas'];
 
                 const dateRegex = /^(\d{2})\/(\d{2})\/(\d{4})$/;
                 if (dateStr && text && dateRegex.test(String(dateStr))) {
@@ -77,6 +78,7 @@ const TodoList: React.FC<TodoListProps> = ({ selectedDate, tasks, onAddTask, onU
                         completed: String(status).trim().toLowerCase() === 'selesai',
                         planningTime: parseFloat(String(planningTime)) || 0,
                         actualTime: parseFloat(String(actualTime)) || 0,
+                        resultLink: resultLink ? String(resultLink) : undefined,
                     };
                     
                     if (!importedTasks[dateKey]) {
@@ -89,7 +91,7 @@ const TodoList: React.FC<TodoListProps> = ({ selectedDate, tasks, onAddTask, onU
             if (Object.keys(importedTasks).length > 0) {
                 onImportTasks(importedTasks);
             } else {
-                alert("No valid tasks found in the file. Please check the format.\nRequired columns: 'Tanggal', 'Tugas', 'Status', 'Planning Time (jam)', 'Actual Time (jam)'.\n'Tanggal' must be in DD/MM/YYYY format.");
+                alert("No valid tasks found in the file. Please check the format.\nRequired columns: 'Tanggal', 'Tugas', 'Status', 'Planning Time (jam)', 'Actual Time (jam)', 'Link Hasil Tugas'.\n'Tanggal' must be in DD/MM/YYYY format.");
             }
 
         } catch (error) {
@@ -128,6 +130,7 @@ const TodoList: React.FC<TodoListProps> = ({ selectedDate, tasks, onAddTask, onU
           'Planning Time (jam)': task.planningTime,
           'Actual Time (jam)': task.actualTime,
           'Status': task.completed ? 'Selesai' : 'Belum Selesai',
+          'Link Hasil Tugas': task.resultLink || '',
         }));
       });
 
@@ -149,7 +152,8 @@ const TodoList: React.FC<TodoListProps> = ({ selectedDate, tasks, onAddTask, onU
       { wch: Math.max(objectMaxLength + 5, 20) }, 
       { wch: 20 },
       { wch: 20 },
-      { wch: 15 } 
+      { wch: 15 },
+      { wch: 30 },
     ];
 
     XLSX.writeFile(workbook, `My-Daily-Planner-Tasks.xlsx`);
