@@ -1,23 +1,12 @@
 import { GoogleGenAI } from "@google/genai";
 import { SummaryData } from '../types';
 
-let ai: GoogleGenAI | null = null;
-
-const getAi = (): GoogleGenAI | null => {
-    if (!process.env.API_KEY) {
-        return null;
+export const generateAiAnalysis = async (summary: SummaryData, range: string, apiKey: string): Promise<string> => {
+    if (!apiKey) {
+        throw new Error("Kunci API Gemini belum diatur. Silakan atur di Dashboard.");
     }
-    if (!ai) {
-        ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
-    }
-    return ai;
-}
-
-export const generateAiAnalysis = async (summary: SummaryData, range: string): Promise<string> => {
-    const gemini = getAi();
-    if (!gemini) {
-        throw new Error("API Key for Gemini is not configured.");
-    }
+    
+    const ai = new GoogleGenAI({ apiKey });
     
     const prompt = `Anda adalah seorang asisten produktivitas yang ahli dengan gaya bahasa yang ringan, lugas, dan mudah dimengerti.
 Berdasarkan data berikut untuk rentang waktu "${range}":
@@ -39,14 +28,16 @@ Saran :
 [Saran untuk meningkatkan produktivitas]`;
     
     try {
-        const response = await gemini.models.generateContent({
+        const response = await ai.models.generateContent({
             model: 'gemini-2.5-flash',
             contents: prompt,
         });
         return response.text;
     } catch (error) {
         console.error("AI Analysis Error in service:", error);
-        // Re-throw a more user-friendly error
-        throw new Error("Gagal berkomunikasi dengan layanan AI. Silakan coba lagi.");
+        if (error instanceof Error && (error.message.includes('API_KEY_INVALID') || error.message.includes('API key not valid'))) {
+            throw new Error("Kunci API Gemini tidak valid. Silakan periksa kembali dan atur ulang.");
+        }
+        throw new Error("Gagal berkomunikasi dengan layanan AI. Pastikan Kunci API Anda benar dan coba lagi.");
     }
 };
