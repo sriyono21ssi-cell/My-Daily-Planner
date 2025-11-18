@@ -1,13 +1,12 @@
-import React, { useMemo, useState, useRef, useEffect } from 'react';
+import React, { useMemo, useState } from 'react';
 import { Task, SummaryData } from '../types';
 import PieChart from './charts/PieChart';
 import BarChart from './charts/BarChart';
 import { SparkIcon } from './icons/SparkIcon';
 import { DocumentTextIcon } from './icons/DocumentTextIcon';
 import { generateAiAnalysis } from '../services/geminiService';
-import { useLocalStorage } from '../hooks/useLocalStorage';
-import { KeyIcon } from './icons/KeyIcon';
 
+// Menghapus impor untuk useLocalStorage dan KeyIcon karena tidak lagi diperlukan.
 
 interface DashboardProps {
   allTasks: Record<string, Task[]>;
@@ -37,17 +36,8 @@ const Dashboard: React.FC<DashboardProps> = ({
     allTasks, range, setRange, summary, setSummary,
     aiAnalysis, setAiAnalysis, isGeneratingAI, setIsGeneratingAI 
 }) => {
-  const [apiKey, setApiKey] = useLocalStorage<string>('gemini-api-key', '');
-  const [showKeyInput, setShowKeyInput] = useState(false);
-  const [tempApiKey, setTempApiKey] = useState(apiKey);
-  const apiKeyInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    if (showKeyInput) {
-        apiKeyInputRef.current?.focus();
-    }
-  }, [showKeyInput]);
-
+  // Menghapus semua state dan hook yang terkait dengan input Kunci API manual.
+  // Kunci API sekarang ditangani oleh service melalui environment variables.
 
   const getTasksForRange = (selectedRange: 'kemarin' | 'today' | 'week' | 'month'): Task[] => {
     const today = getJakartaCurrentDate();
@@ -78,7 +68,7 @@ const Dashboard: React.FC<DashboardProps> = ({
     }
 
     Object.keys(allTasks).forEach(dateKey => {
-      // dateKey is in YYYY-MM-DD format, which is correctly interpreted as UTC midnight
+      // dateKey dalam format YYYY-MM-DD, yang diinterpretasikan dengan benar sebagai tengah malam UTC
       const taskDate = new Date(`${dateKey}T00:00:00Z`);
       if (taskDate >= startDate && taskDate <= endDate) {
         tasksInRange.push(...allTasks[dateKey]);
@@ -103,27 +93,10 @@ const Dashboard: React.FC<DashboardProps> = ({
       totalActual,
       totalActualDone,
     });
-    setAiAnalysis(''); // Reset AI analysis
-  };
-  
-  const handleSaveApiKey = () => {
-    const trimmedKey = tempApiKey.trim();
-    if (trimmedKey) {
-        setApiKey(trimmedKey);
-        setShowKeyInput(false);
-        alert('Kunci API berhasil disimpan!');
-    } else {
-        alert('Kunci API tidak boleh kosong.');
-    }
+    setAiAnalysis(''); // Reset analisis AI
   };
 
   const handleGenerateAI = async () => {
-    if (!apiKey) {
-      setShowKeyInput(true);
-      setTimeout(() => apiKeyInputRef.current?.focus(), 100);
-      alert("Silakan atur Kunci API Gemini Anda terlebih dahulu.");
-      return;
-    }
     if (!summary) {
         alert("Silakan hasilkan ringkasan terlebih dahulu.");
         return;
@@ -133,15 +106,13 @@ const Dashboard: React.FC<DashboardProps> = ({
     setAiAnalysis('');
     
     try {
-        const analysisText = await generateAiAnalysis(summary, range, apiKey);
+        // Memanggil service tanpa parameter Kunci API.
+        const analysisText = await generateAiAnalysis(summary, range);
         setAiAnalysis(analysisText);
     } catch(error) {
         console.error("AI Analysis Error:", error);
         const errorMessage = error instanceof Error ? error.message : "Gagal menghasilkan analisis. Silakan coba lagi.";
         setAiAnalysis(errorMessage);
-        if (errorMessage.toLowerCase().includes('valid')) {
-            setShowKeyInput(true);
-        }
     } finally {
         setIsGeneratingAI(false);
     }
@@ -309,48 +280,8 @@ const Dashboard: React.FC<DashboardProps> = ({
                        <SparkIcon className="w-5 h-5" />
                        {isGeneratingAI ? 'Menganalisis...' : 'Analisa dan Saran AI'}
                     </button>
-                    <button
-                        onClick={() => {
-                            setTempApiKey(apiKey);
-                            setShowKeyInput(!showKeyInput);
-                        }}
-                        className="w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 font-medium rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 transition-colors"
-                        title="Atur Kunci API Gemini Anda"
-                    >
-                        <KeyIcon className="w-5 h-5" />
-                        <span>{apiKey ? 'Ubah' : 'Atur'} Kunci API</span>
-                    </button>
                 </div>
                 
-                {showKeyInput && (
-                    <div className="mt-4 p-4 bg-slate-100 dark:bg-slate-700 rounded-lg animate-fade-in">
-                        <label htmlFor="apiKeyInput" className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
-                            Kunci API Gemini Anda
-                        </label>
-                        <div className="flex flex-col sm:flex-row gap-2">
-                            <input
-                                id="apiKeyInput"
-                                ref={apiKeyInputRef}
-                                type="password"
-                                value={tempApiKey}
-                                onChange={(e) => setTempApiKey(e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && handleSaveApiKey()}
-                                placeholder="Masukkan kunci API Anda di sini"
-                                className="flex-grow px-3 py-2 bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 rounded-md focus:ring-2 focus:ring-indigo-500 focus:outline-none"
-                            />
-                            <button
-                                onClick={handleSaveApiKey}
-                                className="px-5 py-2 bg-indigo-500 text-white font-semibold rounded-lg hover:bg-indigo-600 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:focus:ring-offset-slate-800 transition-colors"
-                            >
-                                Simpan
-                            </button>
-                        </div>
-                        <p className="mt-2 text-xs text-slate-500 dark:text-slate-400">
-                            Kunci API Anda disimpan dengan aman di penyimpanan lokal browser Anda.
-                        </p>
-                    </div>
-                )}
-
                 {isGeneratingAI && <div className="mt-4 text-center text-slate-500">Memproses data dengan Gemini...</div>}
                 
                 {aiAnalysis && (

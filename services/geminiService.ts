@@ -1,9 +1,14 @@
 import { GoogleGenAI } from "@google/genai";
 import { SummaryData } from '../types';
 
-export const generateAiAnalysis = async (summary: SummaryData, range: string, apiKey: string): Promise<string> => {
+// Kunci API sekarang dibaca langsung dari environment variables yang dikonfigurasi di Vercel.
+// Tidak lagi diteruskan sebagai parameter dari komponen.
+export const generateAiAnalysis = async (summary: SummaryData, range: string): Promise<string> => {
+    // process.env.API_KEY secara otomatis disuntikkan oleh lingkungan build (misalnya, Vercel)
+    const apiKey = process.env.API_KEY;
+
     if (!apiKey) {
-        throw new Error("Kunci API Gemini belum diatur. Silakan atur di Dashboard.");
+        throw new Error("Kunci API Gemini tidak dikonfigurasi. Harap atur variabel lingkungan API_KEY di Vercel.");
     }
     
     const ai = new GoogleGenAI({ apiKey });
@@ -36,8 +41,8 @@ Saran :
     } catch (error) {
         console.error("AI Analysis Error in service:", error);
         if (error instanceof Error && (error.message.includes('API_KEY_INVALID') || error.message.includes('API key not valid'))) {
-            throw new Error("Kunci API Gemini tidak valid. Silakan periksa kembali dan atur ulang.");
+            throw new Error("Kunci API Gemini yang disediakan di Vercel tidak valid. Silakan periksa kembali.");
         }
-        throw new Error("Gagal berkomunikasi dengan layanan AI. Pastikan Kunci API Anda benar dan coba lagi.");
+        throw new Error("Gagal berkomunikasi dengan layanan AI. Pastikan Kunci API Anda di Vercel benar dan coba lagi.");
     }
 };
